@@ -1253,7 +1253,7 @@ function dashboard_copyCertificates() {
 }
 function dashboard_initialize() {
 
-    common_logger "Initializing Wazuh dashboard web application."
+    common_logger "Initializing Wazuh dashboard web application. Using the simple dashboard function"
     installCommon_getPass "admin"
     j=0
 
@@ -1336,9 +1336,10 @@ function dashboard_initialize() {
 }
 function dashboard_initializeAIO() {
 
-    common_logger "Initializing Wazuh dashboard web application."
+    common_logger "Initializing Wazuh dashboard web application. Using the simple dashboard function"
     installCommon_getPass "admin"
     http_code=$(curl -XGET https://localhost:"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
+    common_logger "HTTP_CODE inside dashboard initialize AIO $http_code"
     retries=0
     max_dashboard_initialize_retries=20
     while [ "${http_code}" -ne "200" ] && [ "${retries}" -lt "${max_dashboard_initialize_retries}" ]
@@ -1346,8 +1347,10 @@ function dashboard_initializeAIO() {
         http_code=$(curl -XGET https://localhost:"${http_port}"/status -uadmin:"${u_pass}" -k -w %"{http_code}" -s -o /dev/null)
         common_logger "Wazuh dashboard web application not yet initialized. Waiting..."
         retries=$((retries+1))
+        common_logger "Retries: ${retries}/${max_dashboard_initialize_retries}"
         sleep 15
     done
+    common_logger "HTTP_CODE inside dashboard initialize AIO $http_code"
     if [ "${http_code}" -eq "200" ]; then
         common_logger "Wazuh dashboard web application initialized."
         common_logger -nl "--- Summary ---"
@@ -1358,56 +1361,25 @@ function dashboard_initializeAIO() {
         exit 1
     fi
 }
-# function dashboard_install() {
-
-#     common_logger "Starting Wazuh dashboard installation."
-#     if [ "${sys_type}" == "yum" ]; then
-#         eval "yum install wazuh-dashboard${sep}${wazuh_version} -y ${debug}"
-#         install_result="${PIPESTATUS[0]}"
-#     elif [ "${sys_type}" == "apt-get" ]; then
-#         installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-*"
-#     fi
-#     common_checkInstalled
-#     if [  "$install_result" != 0  ] || [ -z "${dashboard_installed}" ]; then
-#         common_logger -e "Wazuh dashboard installation failed."
-#         installCommon_rollBack
-#         exit 1
-#     else
-#         common_logger "Wazuh dashboard installation finished."
-#     fi
-
-# }
-
 function dashboard_install() {
+
     common_logger "Starting Wazuh dashboard installation."
-    
     if [ "${sys_type}" == "yum" ]; then
         eval "yum install wazuh-dashboard${sep}${wazuh_version} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        # Download the Debian package
-        deb_url="https://hive-repo-bucket.s3.ap-south-1.amazonaws.com/wazuh-dashboard_4.7.2-1_amd64.deb"
-        deb_file="/tmp/wazuh-dashboard_${wazuh_version}_amd64.deb"
-        wget -O "${deb_file}" "${deb_url}"
-        
-        # Install the downloaded package using dpkg
-        dpkg -i "${deb_file}"
-        install_result=$?
-
-        # Clean up the downloaded file
-        rm -f "${deb_file}"
+        installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-*"
     fi
-    
     common_checkInstalled
-    if [ "$install_result" != 0 ] || [ -z "${dashboard_installed}" ]; then
+    if [  "$install_result" != 0  ] || [ -z "${dashboard_installed}" ]; then
         common_logger -e "Wazuh dashboard installation failed."
         installCommon_rollBack
         exit 1
     else
         common_logger "Wazuh dashboard installation finished."
     fi
-}
 
+}
 
 # ------------ filebeat.sh ------------ 
 function filebeat_configure(){
