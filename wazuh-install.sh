@@ -1368,7 +1368,14 @@ function dashboard_install() {
         eval "yum install wazuh-dashboard${sep}${wazuh_version} -y ${debug}"
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
-        installCommon_aptInstall "wazuh-dashboard" "${wazuh_version}-*"
+        
+        deb_url="https://hive-repo-bucket.s3.ap-south-1.amazonaws.com/wazuh-dashboard_4.7.2-1_amd64.deb"
+        deb_file="/tmp/wazuh-dashboard_${wazuh_version}_amd64.deb"
+        wget -O "${deb_file}" "${deb_url}"
+        # Install the downloaded package using dpkg
+        dpkg -i "${deb_file}"
+        install_result=$?
+        common_logger " install result $install_result"
     fi
     common_checkInstalled
     if [  "$install_result" != 0  ] || [ -z "${dashboard_installed}" ]; then
