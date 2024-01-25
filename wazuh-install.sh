@@ -1369,7 +1369,7 @@ function dashboard_install() {
         install_result="${PIPESTATUS[0]}"
     elif [ "${sys_type}" == "apt-get" ]; then
         
-        deb_url="https://hive-repo-bucket.s3.ap-south-1.amazonaws.com/wazuh-dashboard_4.7.2-1_amd64.deb"
+        deb_url="https://wazuh-invin.s3.ap-south-1.amazonaws.com/wazuh-dashboard_4.7.2-1_amd64.deb"
         deb_file="/tmp/wazuh-dashboard_${wazuh_version}_amd64.deb"
         wget -O "${deb_file}" "${deb_url}"
         # Install the downloaded package using dpkg
