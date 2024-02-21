@@ -21,3 +21,15 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
 docker run hello-world
+
+
+sudo docker run -p 5000:5000 -p 5001:5001 -d \
+-e "ASPNETCORE_ENVIRONMENT=Development" \
+-e "XDR_HOST=172.17.16.22" \
+-e "XDR_API_URL=https://172.17.16.22:55000" \
+-e "XDR_API_USER=wazuh-wui" \
+-e "XDR_API_PASSWORD=MyS3cr37P450r.*-" \
+-e "XDR_REGISTRATION_PASSWORD=ssiXgQwGvymSgRa" \
+-e "X-API-TOKEN=LG3Z59Y2ECBNMDSP687QXU" \
+-e "INVINSENSE_API_URL=https://172.17.16.22:5001" \
+infopercept/invinsense-server:1.0.0-abacus
